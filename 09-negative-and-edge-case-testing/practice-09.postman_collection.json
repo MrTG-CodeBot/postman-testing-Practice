@@ -1,0 +1,88 @@
+{
+  "info": {
+    "name": "09 - Negative and Edge Case Testing",
+    "_postman_id": "prac-09-negative-testing",
+    "description": "Practice 09: Testing error handling, 404 Not Found, 401 Unauthorized, and 400 Bad Request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Negative Test - 404 Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts/999999",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["posts", "999999"]
+        }
+      }
+    },
+    {
+      "name": "2. Negative Test - 401 Unauthorized",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "url": {
+          "raw": "https://postman-echo.com/basic-auth",
+          "protocol": "https",
+          "host": ["postman-echo", "com"],
+          "path": ["basic-auth"]
+        }
+      }
+    },
+    {
+      "name": "3. Negative Test - 400 Bad Request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Returns 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://postman-echo.com/status/400",
+          "protocol": "https",
+          "host": ["postman-echo", "com"],
+          "path": ["status", "400"]
+        }
+      }
+    }
+  ]
+}

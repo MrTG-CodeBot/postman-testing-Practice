@@ -1,0 +1,628 @@
+{
+  "info": {
+    "name": "Postman Testing Complete Course (10 Practices)",
+    "_postman_id": "master-bundle-postman-10-practices",
+    "description": "Complete beginner to advanced-beginner 10-practice curriculum for automated API testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - First GET Request",
+      "item": [
+        {
+          "name": "Get Post by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"Post ID is 1\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/1",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - POST Request and JSON Body",
+      "item": [
+        {
+          "name": "Create New Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Created post has an ID\", function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response).to.have.property(\"id\");",
+                  "});",
+                  "",
+                  "pm.test(\"Title matches payload\", function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response.title).to.eql(\"My First Automated API Post\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My First Automated API Post\",\n  \"body\": \"Learning Postman step by step is fun!\",\n  \"userId\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - PUT PATCH DELETE CRUD",
+      "item": [
+        {
+          "name": "1. PUT - Full Update",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"PUT Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Title was replaced\", function () {",
+                  "    pm.expect(pm.response.json().title).to.eql(\"Completely Replaced Title\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"title\": \"Completely Replaced Title\",\n  \"body\": \"Completely replaced body text\",\n  \"userId\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/1",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts", "1"]
+            }
+          }
+        },
+        {
+          "name": "2. PATCH - Partial Update",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"PATCH Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Title updated via PATCH\", function () {",
+                  "    pm.expect(pm.response.json().title).to.eql(\"Only This Field Was Modified\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Only This Field Was Modified\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/1",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts", "1"]
+            }
+          }
+        },
+        {
+          "name": "3. DELETE - Remove Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"DELETE status is 200 or 204\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/1",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Assertions Deep Dive",
+      "item": [
+        {
+          "name": "Get Users and Validate Schema",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is under 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type header is JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returns an array of 10 users\", function () {",
+                  "    var users = pm.response.json();",
+                  "    pm.expect(users).to.be.an(\"array\").with.lengthOf(10);",
+                  "});",
+                  "",
+                  "pm.test(\"First user has valid data types\", function () {",
+                  "    var firstUser = pm.response.json()[0];",
+                  "    pm.expect(firstUser.id).to.be.a(\"number\");",
+                  "    pm.expect(firstUser.name).to.be.a(\"string\");",
+                  "    pm.expect(firstUser.email).to.include(\"@\");",
+                  "    pm.expect(firstUser.address).to.be.an(\"object\");",
+                  "    pm.expect(firstUser.address.geo.lat).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/users",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Variables and Environments",
+      "item": [
+        {
+          "name": "Get Post Using Variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Post ID matches environment variable\", function () {",
+                  "    var expectedId = parseInt(pm.environment.get(\"postId\"));",
+                  "    pm.expect(pm.response.json().id).to.eql(expectedId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "{{postId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Request Chaining",
+      "item": [
+        {
+          "name": "1. Create Post and Save Dynamic ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Post created with status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var responseData = pm.response.json();",
+                  "pm.environment.set(\"savedPostId\", responseData.id);",
+                  "console.log(\"Saved dynamic post ID:\", responseData.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chained Workflow Post\",\n  \"body\": \"Demonstrating variable passing between requests\",\n  \"userId\": 99\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts"]
+            }
+          }
+        },
+        {
+          "name": "2. Get Created Post Using Dynamic ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Dynamic post ID was used in request\", function () {",
+                  "    var savedId = pm.environment.get(\"savedPostId\");",
+                  "    pm.expect(savedId).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/{{savedPostId}}",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts", "{{savedPostId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - API Authentication",
+      "item": [
+        {
+          "name": "1. Basic Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Basic Auth succeeded with 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().authenticated).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "postman", "type": "string" },
+                { "key": "password", "value": "password", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://postman-echo.com/basic-auth",
+              "protocol": "https",
+              "host": ["postman-echo", "com"],
+              "path": ["basic-auth"]
+            }
+          }
+        },
+        {
+          "name": "2. Bearer Token Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Bearer token delivered in Authorization header\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().headers.authorization).to.include(\"Bearer super-secret-jwt-token-12345\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "super-secret-jwt-token-12345", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://postman-echo.com/headers",
+              "protocol": "https",
+              "host": ["postman-echo", "com"],
+              "path": ["headers"]
+            }
+          }
+        },
+        {
+          "name": "3. API Key Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"API Key received in header\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().headers[\"x-api-key\"]).to.eql(\"my-test-api-key-999\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                { "key": "key", "value": "x-api-key", "type": "string" },
+                { "key": "value", "value": "my-test-api-key-999", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "https://postman-echo.com/headers",
+              "protocol": "https",
+              "host": ["postman-echo", "com"],
+              "path": ["headers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Query Parameters and Path Variables",
+      "item": [
+        {
+          "name": "Filter Comments by Post ID and Limit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response limited to exactly 3 comments\", function () {",
+                  "    var comments = pm.response.json();",
+                  "    pm.expect(comments).to.be.an(\"array\").with.lengthOf(3);",
+                  "});",
+                  "",
+                  "pm.test(\"All comments belong to postId 1\", function () {",
+                  "    var comments = pm.response.json();",
+                  "    comments.forEach(function (comment) {",
+                  "        pm.expect(comment.postId).to.eql(1);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/comments?postId=1&_limit=3",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["comments"],
+              "query": [
+                { "key": "postId", "value": "1" },
+                { "key": "_limit", "value": "3" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Negative and Edge Case Testing",
+      "item": [
+        {
+          "name": "1. Negative Test - 404 Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts/999999",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts", "999999"]
+            }
+          }
+        },
+        {
+          "name": "2. Negative Test - 401 Unauthorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "https://postman-echo.com/basic-auth",
+              "protocol": "https",
+              "host": ["postman-echo", "com"],
+              "path": ["basic-auth"]
+            }
+          }
+        },
+        {
+          "name": "3. Negative Test - 400 Bad Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Returns 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://postman-echo.com/status/400",
+              "protocol": "https",
+              "host": ["postman-echo", "com"],
+              "path": ["status", "400"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Data-Driven Testing and Newman",
+      "item": [
+        {
+          "name": "Data Driven Post Creation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Title matches CSV data file\", function () {",
+                  "    var expectedTitle = pm.iterationData.get(\"title\");",
+                  "    pm.expect(pm.response.json().title).to.eql(expectedTitle);",
+                  "});",
+                  "",
+                  "pm.test(\"User ID matches CSV row\", function () {",
+                  "    var expectedUserId = parseInt(pm.iterationData.get(\"userId\"));",
+                  "    pm.expect(pm.response.json().userId).to.eql(expectedUserId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{title}}\",\n  \"body\": \"{{body}}\",\n  \"userId\": {{userId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts",
+              "protocol": "https",
+              "host": ["jsonplaceholder", "typicode", "com"],
+              "path": ["posts"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

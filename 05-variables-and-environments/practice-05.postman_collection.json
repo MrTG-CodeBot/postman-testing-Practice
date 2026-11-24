@@ -1,0 +1,39 @@
+{
+  "info": {
+    "name": "05 - Variables and Environments",
+    "_postman_id": "prac-05-env-variables",
+    "description": "Practice 05: Using environment variables with {{baseUrl}} and {{postId}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Post Using Variables",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Post ID matches environment variable\", function () {",
+              "    var expectedId = parseInt(pm.environment.get(\"postId\"));",
+              "    pm.expect(pm.response.json().id).to.eql(expectedId);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/posts/{{postId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["posts", "{{postId}}"]
+        }
+      }
+    }
+  ]
+}

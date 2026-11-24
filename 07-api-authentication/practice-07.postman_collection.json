@@ -1,0 +1,108 @@
+{
+  "info": {
+    "name": "07 - API Authentication",
+    "_postman_id": "prac-07-api-auth",
+    "description": "Practice 07: Testing Basic Auth, Bearer Token, and API Key authentication.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Basic Authentication",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Basic Auth succeeded with 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().authenticated).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            { "key": "username", "value": "postman", "type": "string" },
+            { "key": "password", "value": "password", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "https://postman-echo.com/basic-auth",
+          "protocol": "https",
+          "host": ["postman-echo", "com"],
+          "path": ["basic-auth"]
+        }
+      }
+    },
+    {
+      "name": "2. Bearer Token Authentication",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Bearer token delivered in Authorization header\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().headers.authorization).to.include(\"Bearer super-secret-jwt-token-12345\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "super-secret-jwt-token-12345", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "https://postman-echo.com/headers",
+          "protocol": "https",
+          "host": ["postman-echo", "com"],
+          "path": ["headers"]
+        }
+      }
+    },
+    {
+      "name": "3. API Key Authentication",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"API Key received in header\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().headers[\"x-api-key\"]).to.eql(\"my-test-api-key-999\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            { "key": "key", "value": "x-api-key", "type": "string" },
+            { "key": "value", "value": "my-test-api-key-999", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "https://postman-echo.com/headers",
+          "protocol": "https",
+          "host": ["postman-echo", "com"],
+          "path": ["headers"]
+        }
+      }
+    }
+  ]
+}

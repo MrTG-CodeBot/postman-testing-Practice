@@ -1,0 +1,76 @@
+{
+  "info": {
+    "name": "06 - Request Chaining",
+    "_postman_id": "prac-06-request-chaining",
+    "description": "Practice 06: Passing data dynamically between requests using pm.environment.set.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Post and Save Dynamic ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Post created with status 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "var responseData = pm.response.json();",
+              "pm.environment.set(\"savedPostId\", responseData.id);",
+              "console.log(\"Saved dynamic post ID:\", responseData.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Chained Workflow Post\",\n  \"body\": \"Demonstrating variable passing between requests\",\n  \"userId\": 99\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["posts"]
+        }
+      }
+    },
+    {
+      "name": "2. Get Created Post Using Dynamic ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Dynamic post ID was used in request\", function () {",
+              "    var savedId = pm.environment.get(\"savedPostId\");",
+              "    pm.expect(savedId).to.not.be.undefined;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts/{{savedPostId}}",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["posts", "{{savedPostId}}"]
+        }
+      }
+    }
+  ]
+}

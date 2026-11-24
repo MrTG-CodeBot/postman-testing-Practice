@@ -1,0 +1,53 @@
+{
+  "info": {
+    "name": "10 - Data-Driven Testing and Newman",
+    "_postman_id": "prac-10-ddt-newman",
+    "description": "Practice 10: Parameterized testing using external CSV file and Newman CLI.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Data Driven Post Creation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Title matches CSV data file\", function () {",
+              "    var expectedTitle = pm.iterationData.get(\"title\");",
+              "    pm.expect(pm.response.json().title).to.eql(expectedTitle);",
+              "});",
+              "",
+              "pm.test(\"User ID matches CSV row\", function () {",
+              "    var expectedUserId = parseInt(pm.iterationData.get(\"userId\"));",
+              "    pm.expect(pm.response.json().userId).to.eql(expectedUserId);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"{{title}}\",\n  \"body\": \"{{body}}\",\n  \"userId\": {{userId}}\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["posts"]
+        }
+      }
+    }
+  ]
+}

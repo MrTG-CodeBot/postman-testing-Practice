@@ -1,0 +1,61 @@
+{
+  "info": {
+    "name": "02 - POST Request and JSON Body",
+    "_postman_id": "prac-02-post-json-body",
+    "description": "Practice 02: Creating a resource with POST and JSON body, validating 201 Created.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create New Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Created post has an ID\", function () {",
+              "    var response = pm.response.json();",
+              "    pm.expect(response).to.have.property(\"id\");",
+              "});",
+              "",
+              "pm.test(\"Title matches payload\", function () {",
+              "    var response = pm.response.json();",
+              "    pm.expect(response.title).to.eql(\"My First Automated API Post\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"My First Automated API Post\",\n  \"body\": \"Learning Postman step by step is fun!\",\n  \"userId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["posts"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

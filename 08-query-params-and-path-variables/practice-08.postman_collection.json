@@ -1,0 +1,51 @@
+{
+  "info": {
+    "name": "08 - Query Parameters and Path Variables",
+    "_postman_id": "prac-08-params",
+    "description": "Practice 08: Using query parameters for filtering and pagination.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Filter Comments by Post ID and Limit",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response limited to exactly 3 comments\", function () {",
+              "    var comments = pm.response.json();",
+              "    pm.expect(comments).to.be.an(\"array\").with.lengthOf(3);",
+              "});",
+              "",
+              "pm.test(\"All comments belong to postId 1\", function () {",
+              "    var comments = pm.response.json();",
+              "    comments.forEach(function (comment) {",
+              "        pm.expect(comment.postId).to.eql(1);",
+              "    });",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/comments?postId=1&_limit=3",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["comments"],
+          "query": [
+            { "key": "postId", "value": "1" },
+            { "key": "_limit", "value": "3" }
+          ]
+        }
+      }
+    }
+  ]
+}
