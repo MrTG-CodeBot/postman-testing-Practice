@@ -1,0 +1,57 @@
+{
+  "info": {
+    "name": "TMDB Chapter 01 - Setup and First Request",
+    "_postman_id": "tmdb-ch01-setup",
+    "description": "Chapter 01: Authenticating with TMDB Bearer Token and fetching popular movies.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Popular Movies",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response time is under 2000ms\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "pm.test(\"Page is 1 and results array is not empty\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.page).to.eql(1);",
+              "    pm.expect(data.results).to.be.an(\"array\").that.is.not.empty;",
+              "});",
+              "",
+              "pm.test(\"First movie has required fields\", function () {",
+              "    var firstMovie = pm.response.json().results[0];",
+              "    pm.expect(firstMovie.id).to.be.a(\"number\");",
+              "    pm.expect(firstMovie.title).to.be.a(\"string\");",
+              "    pm.expect(firstMovie.vote_average).to.be.a(\"number\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/movie/popular",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "popular"]
+        }
+      }
+    }
+  ]
+}

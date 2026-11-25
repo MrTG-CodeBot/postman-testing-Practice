@@ -1,0 +1,895 @@
+{
+  "info": {
+    "name": "TMDB API Practice Course (7 Chapters)",
+    "_postman_id": "tmdb-master-bundle-course",
+    "description": "Complete 7-chapter real-world API testing practice course using TMDB.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "TMDB Chapter 01 - Setup and First Request",
+      "description": "Chapter 01: Authenticating with TMDB Bearer Token and fetching popular movies.",
+      "item": [
+        {
+          "name": "Get Popular Movies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "pm.test(\"Page is 1 and results array is not empty\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.page).to.eql(1);",
+                  "    pm.expect(data.results).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"First movie has required fields\", function () {",
+                  "    var firstMovie = pm.response.json().results[0];",
+                  "    pm.expect(firstMovie.id).to.be.a(\"number\");",
+                  "    pm.expect(firstMovie.title).to.be.a(\"string\");",
+                  "    pm.expect(firstMovie.vote_average).to.be.a(\"number\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movie/popular",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "popular"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TMDB Chapter 02 - Search and Query Params",
+      "description": "Chapter 02: Searching movies using query parameters and testing empty search results.",
+      "item": [
+        {
+          "name": "1. Search Movie (Valid Query)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Search returned at least 1 movie\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.results).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Top result title includes Inception\", function () {",
+                  "    var firstTitle = pm.response.json().results[0].title.toLowerCase();",
+                  "    pm.expect(firstTitle).to.include(\"inception\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/search/movie?query=Inception&language=en-US&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "movie"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Inception"
+                },
+                {
+                  "key": "language",
+                  "value": "en-US"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Search Movie (Empty Result)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is still 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Results array is empty and total_results is 0\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.results).to.be.an(\"array\").that.is.empty;",
+                  "    pm.expect(data.total_results).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/search/movie?query=zzxxccvv999888notamovie&language=en-US&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "movie"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "zzxxccvv999888notamovie"
+                },
+                {
+                  "key": "language",
+                  "value": "en-US"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TMDB Chapter 03 - Request Chaining",
+      "description": "Chapter 03: Chaining Search -> Movie Details -> Movie Credits using environment variables.",
+      "item": [
+        {
+          "name": "1. Search Movie and Save ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Found at least one movie\", function () {",
+                  "    pm.expect(data.results).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "var firstMovieId = data.results[0].id;",
+                  "pm.environment.set(\"movie_id\", firstMovieId);",
+                  "console.log(\"Saved movie_id:\", firstMovieId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/search/movie?query={{search_query}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "movie"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "{{search_query}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Get Movie Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Movie ID matches saved environment variable\", function () {",
+                  "    var expectedId = parseInt(pm.environment.get(\"movie_id\"));",
+                  "    pm.expect(pm.response.json().id).to.eql(expectedId);",
+                  "});",
+                  "",
+                  "pm.test(\"Movie has genres and runtime\", function () {",
+                  "    var movie = pm.response.json();",
+                  "    pm.expect(movie.genres).to.be.an(\"array\").that.is.not.empty;",
+                  "    pm.expect(movie.runtime).to.be.a(\"number\").and.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movie/{{movie_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "{{movie_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Get Movie Credits (Cast and Crew)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Cast and crew arrays exist\", function () {",
+                  "    var credits = pm.response.json();",
+                  "    pm.expect(credits.cast).to.be.an(\"array\").that.is.not.empty;",
+                  "    pm.expect(credits.crew).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"First cast member has name and character\", function () {",
+                  "    var leadActor = pm.response.json().cast[0];",
+                  "    pm.expect(leadActor.name).to.be.a(\"string\");",
+                  "    pm.expect(leadActor.character).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movie/{{movie_id}}/credits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "{{movie_id}}",
+                "credits"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TMDB Chapter 04 - Discover and Filtering",
+      "description": "Chapter 04: Filtering movies with /discover/movie and asserting every element in the response array.",
+      "item": [
+        {
+          "name": "1. Get Movie Genres List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Genres list is not empty\", function () {",
+                  "    var genres = pm.response.json().genres;",
+                  "    pm.expect(genres).to.be.an(\"array\").that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/genre/movie/list?language=en",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "genre",
+                "movie",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "en"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Discover Filtered Sci-Fi Movies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Every movie has at least 500 votes and Sci-Fi genre (878)\", function () {",
+                  "    var movies = pm.response.json().results;",
+                  "    pm.expect(movies).to.be.an(\"array\").that.is.not.empty;",
+                  "",
+                  "    movies.forEach(function (movie) {",
+                  "        pm.expect(movie.vote_count).to.be.at.least(500);",
+                  "        pm.expect(movie.genre_ids).to.include(878);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Results are sorted by vote_average descending\", function () {",
+                  "    var movies = pm.response.json().results;",
+                  "    for (var i = 0; i < movies.length - 1; i++) {",
+                  "        pm.expect(movies[i].vote_average).to.be.at.least(movies[i + 1].vote_average);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/discover/movie?with_genres=878&primary_release_date.gte=2010-01-01&vote_count.gte=500&sort_by=vote_average.desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "discover",
+                "movie"
+              ],
+              "query": [
+                {
+                  "key": "with_genres",
+                  "value": "878"
+                },
+                {
+                  "key": "primary_release_date.gte",
+                  "value": "2010-01-01"
+                },
+                {
+                  "key": "vote_count.gte",
+                  "value": "500"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "vote_average.desc"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TMDB Chapter 05 - Guest Session and Ratings",
+      "description": "Chapter 05: Creating a guest session, POSTing a movie rating, and DELETEing it.",
+      "item": [
+        {
+          "name": "1. Create Guest Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var data = pm.response.json();",
+                  "pm.test(\"Guest session created successfully\", function () {",
+                  "    pm.expect(data.success).to.be.true;",
+                  "    pm.expect(data.guest_session_id).to.be.a(\"string\");",
+                  "});",
+                  "",
+                  "pm.environment.set(\"guest_session_id\", data.guest_session_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/authentication/guest_session/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "authentication",
+                "guest_session",
+                "new"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Rate Movie (POST)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Rating saved successfully\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 8.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/movie/{{movie_id}}/rating?guest_session_id={{guest_session_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "{{movie_id}}",
+                "rating"
+              ],
+              "query": [
+                {
+                  "key": "guest_session_id",
+                  "value": "{{guest_session_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Delete Movie Rating (DELETE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Rating deleted successfully\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/movie/{{movie_id}}/rating?guest_session_id={{guest_session_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "{{movie_id}}",
+                "rating"
+              ],
+              "query": [
+                {
+                  "key": "guest_session_id",
+                  "value": "{{guest_session_id}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TMDB Chapter 06 - Negative Testing",
+      "description": "Chapter 06: Testing 401 Unauthorized, 404 Not Found, and 400 Bad Request on TMDB.",
+      "item": [
+        {
+          "name": "1. Invalid Token (401 Unauthorized)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Response reports invalid API key/token\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.success).to.be.false;",
+                  "    pm.expect(data.status_code).to.eql(7);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "invalid_fake_token_123",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movie/popular",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "popular"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Non-Existent Movie ID (404 Not Found)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Response reports resource not found\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.success).to.be.false;",
+                  "    pm.expect(data.status_code).to.eql(34);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movie/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "999999999"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Out-of-Range Rating (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response rejects out-of-range rating\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.success).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/movie/27205/rating?guest_session_id={{guest_session_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "movie",
+                "27205",
+                "rating"
+              ],
+              "query": [
+                {
+                  "key": "guest_session_id",
+                  "value": "{{guest_session_id}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TMDB Chapter 07 - Data-Driven Testing",
+      "description": "Chapter 07: Searching and validating multiple movies from movies.csv.",
+      "item": [
+        {
+          "name": "Search Movie and Verify Release Year",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var expectedTitle = pm.iterationData.get(\"movie_title\");",
+                  "var expectedYear = String(pm.iterationData.get(\"expected_year\"));",
+                  "",
+                  "pm.test(\"Found matching movie for: \" + expectedTitle, function () {",
+                  "    var results = pm.response.json().results;",
+                  "    pm.expect(results).to.be.an(\"array\").that.is.not.empty;",
+                  "    pm.expect(results[0].title.toLowerCase()).to.include(expectedTitle.toLowerCase());",
+                  "});",
+                  "",
+                  "pm.test(\"Release year matches \" + expectedYear, function () {",
+                  "    var firstMovie = pm.response.json().results[0];",
+                  "    pm.expect(firstMovie.release_date).to.include(expectedYear);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tmdb_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/search/movie?query={{movie_title}}&year={{expected_year}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "movie"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "{{movie_title}}"
+                },
+                {
+                  "key": "year",
+                  "value": "{{expected_year}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

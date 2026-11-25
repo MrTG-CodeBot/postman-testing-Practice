@@ -1,0 +1,58 @@
+{
+  "info": {
+    "name": "TMDB Chapter 07 - Data-Driven Testing",
+    "_postman_id": "tmdb-ch07-ddt",
+    "description": "Chapter 07: Searching and validating multiple movies from movies.csv.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Search Movie and Verify Release Year",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var expectedTitle = pm.iterationData.get(\"movie_title\");",
+              "var expectedYear = String(pm.iterationData.get(\"expected_year\"));",
+              "",
+              "pm.test(\"Found matching movie for: \" + expectedTitle, function () {",
+              "    var results = pm.response.json().results;",
+              "    pm.expect(results).to.be.an(\"array\").that.is.not.empty;",
+              "    pm.expect(results[0].title.toLowerCase()).to.include(expectedTitle.toLowerCase());",
+              "});",
+              "",
+              "pm.test(\"Release year matches \" + expectedYear, function () {",
+              "    var firstMovie = pm.response.json().results[0];",
+              "    pm.expect(firstMovie.release_date).to.include(expectedYear);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/search/movie?query={{movie_title}}&year={{expected_year}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["search", "movie"],
+          "query": [
+            { "key": "query", "value": "{{movie_title}}" },
+            { "key": "year", "value": "{{expected_year}}" }
+          ]
+        }
+      }
+    }
+  ]
+}

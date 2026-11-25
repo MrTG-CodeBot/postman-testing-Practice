@@ -1,0 +1,135 @@
+{
+  "info": {
+    "name": "TMDB Chapter 03 - Request Chaining",
+    "_postman_id": "tmdb-ch03-chaining",
+    "description": "Chapter 03: Chaining Search -> Movie Details -> Movie Credits using environment variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Search Movie and Save ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var data = pm.response.json();",
+              "pm.test(\"Found at least one movie\", function () {",
+              "    pm.expect(data.results).to.be.an(\"array\").that.is.not.empty;",
+              "});",
+              "",
+              "var firstMovieId = data.results[0].id;",
+              "pm.environment.set(\"movie_id\", firstMovieId);",
+              "console.log(\"Saved movie_id:\", firstMovieId);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/search/movie?query={{search_query}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["search", "movie"],
+          "query": [
+            { "key": "query", "value": "{{search_query}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Get Movie Details",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Movie ID matches saved environment variable\", function () {",
+              "    var expectedId = parseInt(pm.environment.get(\"movie_id\"));",
+              "    pm.expect(pm.response.json().id).to.eql(expectedId);",
+              "});",
+              "",
+              "pm.test(\"Movie has genres and runtime\", function () {",
+              "    var movie = pm.response.json();",
+              "    pm.expect(movie.genres).to.be.an(\"array\").that.is.not.empty;",
+              "    pm.expect(movie.runtime).to.be.a(\"number\").and.above(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/movie/{{movie_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "{{movie_id}}"]
+        }
+      }
+    },
+    {
+      "name": "3. Get Movie Credits (Cast and Crew)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Cast and crew arrays exist\", function () {",
+              "    var credits = pm.response.json();",
+              "    pm.expect(credits.cast).to.be.an(\"array\").that.is.not.empty;",
+              "    pm.expect(credits.crew).to.be.an(\"array\").that.is.not.empty;",
+              "});",
+              "",
+              "pm.test(\"First cast member has name and character\", function () {",
+              "    var leadActor = pm.response.json().cast[0];",
+              "    pm.expect(leadActor.name).to.be.a(\"string\");",
+              "    pm.expect(leadActor.character).to.be.a(\"string\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/movie/{{movie_id}}/credits",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "{{movie_id}}", "credits"]
+        }
+      }
+    }
+  ]
+}

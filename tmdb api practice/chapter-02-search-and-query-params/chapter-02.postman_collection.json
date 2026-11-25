@@ -1,0 +1,96 @@
+{
+  "info": {
+    "name": "TMDB Chapter 02 - Search and Query Params",
+    "_postman_id": "tmdb-ch02-search",
+    "description": "Chapter 02: Searching movies using query parameters and testing empty search results.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Search Movie (Valid Query)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Search returned at least 1 movie\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.results).to.be.an(\"array\").that.is.not.empty;",
+              "});",
+              "",
+              "pm.test(\"Top result title includes Inception\", function () {",
+              "    var firstTitle = pm.response.json().results[0].title.toLowerCase();",
+              "    pm.expect(firstTitle).to.include(\"inception\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/search/movie?query=Inception&language=en-US&page=1",
+          "host": ["{{baseUrl}}"],
+          "path": ["search", "movie"],
+          "query": [
+            { "key": "query", "value": "Inception" },
+            { "key": "language", "value": "en-US" },
+            { "key": "page", "value": "1" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Search Movie (Empty Result)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is still 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Results array is empty and total_results is 0\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.results).to.be.an(\"array\").that.is.empty;",
+              "    pm.expect(data.total_results).to.eql(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/search/movie?query=zzxxccvv999888notamovie&language=en-US&page=1",
+          "host": ["{{baseUrl}}"],
+          "path": ["search", "movie"],
+          "query": [
+            { "key": "query", "value": "zzxxccvv999888notamovie" },
+            { "key": "language", "value": "en-US" },
+            { "key": "page", "value": "1" }
+          ]
+        }
+      }
+    }
+  ]
+}

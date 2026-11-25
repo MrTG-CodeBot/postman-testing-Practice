@@ -1,0 +1,132 @@
+{
+  "info": {
+    "name": "TMDB Chapter 05 - Guest Session and Ratings",
+    "_postman_id": "tmdb-ch05-ratings",
+    "description": "Chapter 05: Creating a guest session, POSTing a movie rating, and DELETEing it.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Guest Session",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var data = pm.response.json();",
+              "pm.test(\"Guest session created successfully\", function () {",
+              "    pm.expect(data.success).to.be.true;",
+              "    pm.expect(data.guest_session_id).to.be.a(\"string\");",
+              "});",
+              "",
+              "pm.environment.set(\"guest_session_id\", data.guest_session_id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/authentication/guest_session/new",
+          "host": ["{{baseUrl}}"],
+          "path": ["authentication", "guest_session", "new"]
+        }
+      }
+    },
+    {
+      "name": "2. Rate Movie (POST)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Rating saved successfully\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.success).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"value\": 8.5\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/movie/{{movie_id}}/rating?guest_session_id={{guest_session_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "{{movie_id}}", "rating"],
+          "query": [
+            { "key": "guest_session_id", "value": "{{guest_session_id}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Delete Movie Rating (DELETE)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Rating deleted successfully\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.success).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/movie/{{movie_id}}/rating?guest_session_id={{guest_session_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "{{movie_id}}", "rating"],
+          "query": [
+            { "key": "guest_session_id", "value": "{{guest_session_id}}" }
+          ]
+        }
+      }
+    }
+  ]
+}

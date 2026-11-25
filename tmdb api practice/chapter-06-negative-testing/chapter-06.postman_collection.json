@@ -1,0 +1,128 @@
+{
+  "info": {
+    "name": "TMDB Chapter 06 - Negative Testing",
+    "_postman_id": "tmdb-ch06-negative",
+    "description": "Chapter 06: Testing 401 Unauthorized, 404 Not Found, and 400 Bad Request on TMDB.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Invalid Token (401 Unauthorized)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test(\"Response reports invalid API key/token\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.success).to.be.false;",
+              "    pm.expect(data.status_code).to.eql(7);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "invalid_fake_token_123", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/movie/popular",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "popular"]
+        }
+      }
+    },
+    {
+      "name": "2. Non-Existent Movie ID (404 Not Found)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Response reports resource not found\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.success).to.be.false;",
+              "    pm.expect(data.status_code).to.eql(34);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/movie/999999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "999999999"]
+        }
+      }
+    },
+    {
+      "name": "3. Out-of-Range Rating (400 Bad Request)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Response rejects out-of-range rating\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.success).to.be.false;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{tmdb_token}}", "type": "string" }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"value\": 999\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/movie/27205/rating?guest_session_id={{guest_session_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["movie", "27205", "rating"],
+          "query": [
+            { "key": "guest_session_id", "value": "{{guest_session_id}}" }
+          ]
+        }
+      }
+    }
+  ]
+}
