@@ -1,0 +1,56 @@
+{
+  "info": {
+    "name": "GitHub Chapter 02 - Search Repositories",
+    "_postman_id": "gh-ch02-search",
+    "description": "Chapter 02: Searching repositories with sorting and pagination.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Search Top 5 Postman Repositories",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Returned exactly 5 repositories\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.total_count).to.be.above(0);",
+              "    pm.expect(data.items).to.be.an(\"array\").with.lengthOf(5);",
+              "});",
+              "",
+              "pm.test(\"Repositories are sorted by stars descending\", function () {",
+              "    var items = pm.response.json().items;",
+              "    for (var i = 0; i < items.length - 1; i++) {",
+              "        pm.expect(items[i].stargazers_count).to.be.at.least(items[i + 1].stargazers_count);",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/vnd.github+json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/search/repositories?q=postman&sort=stars&order=desc&per_page=5",
+          "host": ["{{baseUrl}}"],
+          "path": ["search", "repositories"],
+          "query": [
+            { "key": "q", "value": "postman" },
+            { "key": "sort", "value": "stars" },
+            { "key": "order", "value": "desc" },
+            { "key": "per_page", "value": "5" }
+          ]
+        }
+      }
+    }
+  ]
+}

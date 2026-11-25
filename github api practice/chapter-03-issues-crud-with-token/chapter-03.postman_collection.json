@@ -1,0 +1,103 @@
+{
+  "info": {
+    "name": "GitHub Chapter 03 - Issues CRUD with Token",
+    "_postman_id": "gh-ch03-issues",
+    "description": "Chapter 03: Creating and closing a GitHub Issue using a Personal Access Token and request chaining.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Issue (POST)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Issue created with 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "var issue = pm.response.json();",
+              "pm.test(\"Issue is open and title matches\", function () {",
+              "    pm.expect(issue.state).to.eql(\"open\");",
+              "    pm.expect(issue.title).to.eql(\"Postman Automated Test Issue\");",
+              "});",
+              "",
+              "pm.environment.set(\"issue_number\", issue.number);",
+              "console.log(\"Saved issue_number:\", issue.number);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{github_token}}", "type": "string" }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/vnd.github+json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman Automated Test Issue\",\n  \"body\": \"Created via Postman API testing practice!\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{username}}/{{test_repo}}/issues",
+          "host": ["{{baseUrl}}"],
+          "path": ["repos", "{{username}}", "{{test_repo}}", "issues"]
+        }
+      }
+    },
+    {
+      "name": "2. Update and Close Issue (PATCH)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Issue is now closed\", function () {",
+              "    var issue = pm.response.json();",
+              "    pm.expect(issue.state).to.eql(\"closed\");",
+              "    pm.expect(issue.title).to.include(\"Updated\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{github_token}}", "type": "string" }
+          ]
+        },
+        "method": "PATCH",
+        "header": [
+          { "key": "Accept", "value": "application/vnd.github+json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman Automated Test Issue (Updated)\",\n  \"state\": \"closed\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{username}}/{{test_repo}}/issues/{{issue_number}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["repos", "{{username}}", "{{test_repo}}", "issues", "{{issue_number}}"]
+        }
+      }
+    }
+  ]
+}

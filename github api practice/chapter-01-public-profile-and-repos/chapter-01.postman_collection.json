@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "GitHub Chapter 01 - Public Profile and Repos",
+    "_postman_id": "gh-ch01-public",
+    "description": "Chapter 01: Reading public GitHub profile and repositories without a token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Get User Profile",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Username matches environment variable\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.login.toLowerCase()).to.eql(pm.environment.get(\"username\").toLowerCase());",
+              "});",
+              "",
+              "pm.test(\"Rate limit header is present\", function () {",
+              "    pm.response.to.have.header(\"x-ratelimit-remaining\");",
+              "    var remaining = parseInt(pm.response.headers.get(\"x-ratelimit-remaining\"));",
+              "    pm.expect(remaining).to.be.at.least(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/vnd.github+json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/{{username}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "{{username}}"]
+        }
+      }
+    },
+    {
+      "name": "2. Get User Public Repositories",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Repositories list is an array\", function () {",
+              "    var repos = pm.response.json();",
+              "    pm.expect(repos).to.be.an(\"array\").that.is.not.empty;",
+              "});",
+              "",
+              "pm.test(\"First repository has name and html_url\", function () {",
+              "    var firstRepo = pm.response.json()[0];",
+              "    pm.expect(firstRepo.name).to.be.a(\"string\");",
+              "    pm.expect(firstRepo.html_url).to.include(\"https://github.com/\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/vnd.github+json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/{{username}}/repos",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "{{username}}", "repos"]
+        }
+      }
+    }
+  ]
+}

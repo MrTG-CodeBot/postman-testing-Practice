@@ -1,0 +1,433 @@
+{
+  "info": {
+    "name": "GitHub API Practice Course (4 Chapters)",
+    "_postman_id": "github-master-bundle-course",
+    "description": "Short 4-chapter real-world API testing practice using GitHub REST API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GitHub Chapter 01 - Public Profile and Repos",
+      "description": "Chapter 01: Reading public GitHub profile and repositories without a token.",
+      "item": [
+        {
+          "name": "1. Get User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Username matches environment variable\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.login.toLowerCase()).to.eql(pm.environment.get(\"username\").toLowerCase());",
+                  "});",
+                  "",
+                  "pm.test(\"Rate limit header is present\", function () {",
+                  "    pm.response.to.have.header(\"x-ratelimit-remaining\");",
+                  "    var remaining = parseInt(pm.response.headers.get(\"x-ratelimit-remaining\"));",
+                  "    pm.expect(remaining).to.be.at.least(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{username}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{username}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Get User Public Repositories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Repositories list is an array\", function () {",
+                  "    var repos = pm.response.json();",
+                  "    pm.expect(repos).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"First repository has name and html_url\", function () {",
+                  "    var firstRepo = pm.response.json()[0];",
+                  "    pm.expect(firstRepo.name).to.be.a(\"string\");",
+                  "    pm.expect(firstRepo.html_url).to.include(\"https://github.com/\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{username}}/repos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{username}}",
+                "repos"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GitHub Chapter 02 - Search Repositories",
+      "description": "Chapter 02: Searching repositories with sorting and pagination.",
+      "item": [
+        {
+          "name": "Search Top 5 Postman Repositories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returned exactly 5 repositories\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.total_count).to.be.above(0);",
+                  "    pm.expect(data.items).to.be.an(\"array\").with.lengthOf(5);",
+                  "});",
+                  "",
+                  "pm.test(\"Repositories are sorted by stars descending\", function () {",
+                  "    var items = pm.response.json().items;",
+                  "    for (var i = 0; i < items.length - 1; i++) {",
+                  "        pm.expect(items[i].stargazers_count).to.be.at.least(items[i + 1].stargazers_count);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/search/repositories?q=postman&sort=stars&order=desc&per_page=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "repositories"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "postman"
+                },
+                {
+                  "key": "sort",
+                  "value": "stars"
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                },
+                {
+                  "key": "per_page",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GitHub Chapter 03 - Issues CRUD with Token",
+      "description": "Chapter 03: Creating and closing a GitHub Issue using a Personal Access Token and request chaining.",
+      "item": [
+        {
+          "name": "1. Create Issue (POST)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Issue created with 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var issue = pm.response.json();",
+                  "pm.test(\"Issue is open and title matches\", function () {",
+                  "    pm.expect(issue.state).to.eql(\"open\");",
+                  "    pm.expect(issue.title).to.eql(\"Postman Automated Test Issue\");",
+                  "});",
+                  "",
+                  "pm.environment.set(\"issue_number\", issue.number);",
+                  "console.log(\"Saved issue_number:\", issue.number);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{github_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman Automated Test Issue\",\n  \"body\": \"Created via Postman API testing practice!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/repos/{{username}}/{{test_repo}}/issues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "repos",
+                "{{username}}",
+                "{{test_repo}}",
+                "issues"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Update and Close Issue (PATCH)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Issue is now closed\", function () {",
+                  "    var issue = pm.response.json();",
+                  "    pm.expect(issue.state).to.eql(\"closed\");",
+                  "    pm.expect(issue.title).to.include(\"Updated\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{github_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman Automated Test Issue (Updated)\",\n  \"state\": \"closed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/repos/{{username}}/{{test_repo}}/issues/{{issue_number}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "repos",
+                "{{username}}",
+                "{{test_repo}}",
+                "issues",
+                "{{issue_number}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GitHub Chapter 04 - Negative Testing",
+      "description": "Chapter 04: Testing 404 Not Found and 422 Unprocessable Entity on GitHub API.",
+      "item": [
+        {
+          "name": "1. Non-Existent User (404 Not Found)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message says Not Found\", function () {",
+                  "    pm.expect(pm.response.json().message).to.eql(\"Not Found\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/this-user-definitely-does-not-exist-999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "this-user-definitely-does-not-exist-999999"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Create Issue Missing Title (422 Unprocessable Entity)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "pm.test(\"Error reports validation failure\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.message).to.include(\"Invalid request\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{github_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.github+json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/repos/{{username}}/{{test_repo}}/issues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "repos",
+                "{{username}}",
+                "{{test_repo}}",
+                "issues"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

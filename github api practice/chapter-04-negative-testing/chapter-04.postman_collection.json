@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "GitHub Chapter 04 - Negative Testing",
+    "_postman_id": "gh-ch04-negative",
+    "description": "Chapter 04: Testing 404 Not Found and 422 Unprocessable Entity on GitHub API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Non-Existent User (404 Not Found)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Error message says Not Found\", function () {",
+              "    pm.expect(pm.response.json().message).to.eql(\"Not Found\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/vnd.github+json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/this-user-definitely-does-not-exist-999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "this-user-definitely-does-not-exist-999999"]
+        }
+      }
+    },
+    {
+      "name": "2. Create Issue Missing Title (422 Unprocessable Entity)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "pm.test(\"Error reports validation failure\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.message).to.include(\"Invalid request\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{github_token}}", "type": "string" }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/vnd.github+json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/repos/{{username}}/{{test_repo}}/issues",
+          "host": ["{{baseUrl}}"],
+          "path": ["repos", "{{username}}", "{{test_repo}}", "issues"]
+        }
+      }
+    }
+  ]
+}
